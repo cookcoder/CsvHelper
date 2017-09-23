@@ -1128,6 +1128,53 @@ namespace CsvHelper
 		}
 
 		/// <summary>
+		/// Enumerates the records filling the given record instance with row data.
+		/// The record instance is re-used and not cleared on each enumeration. 
+		/// This only works for streaming rows. If any methods are call on the projection
+		/// that force the evaluation of the IEnumerable, such as ToList(), the entire list
+		/// will contain the same instance of the record, which is the last row.
+		/// </summary>
+		/// <typeparam name="T">The type of the record.</typeparam>
+		/// <param name="record">The record to fill each enumeration.</param>
+		/// <returns>An <see cref="IEnumerable{T}"/> of records.</returns>
+		public virtual IEnumerable<T> EnumerateRecords<T>( T record )
+		{
+			// Don't need to check if it's been read
+			// since we're doing the reading ourselves.
+
+			if( context.ReaderConfiguration.HasHeaderRecord && context.HeaderRecord == null )
+			{
+				if( !Read() )
+				{
+					yield break;
+				}
+
+				ReadHeader();
+				ValidateHeader<T>();
+			}
+
+			while( Read() )
+			{
+				try
+				{
+					FillRecord( record );
+				}
+				catch( Exception ex )
+				{
+					var csvHelperException = ex as CsvHelperException ?? new ReaderException( context, "An unexpected error occurred.", ex );
+
+					context.ReaderConfiguration.ReadingExceptionCallback?.Invoke( csvHelperException );
+
+					// If the callback doesn't throw, keep going.
+					continue;
+				}
+
+				yield return record;
+			}
+		}
+
+
+		/// <summary>
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
 		/// <filterpriority>2</filterpriority>
@@ -1309,6 +1356,24 @@ namespace CsvHelper
 			{
 				throw ex.InnerException;
 			}
+		}
+
+		protected virtual void FillRecord<T>( T record )
+		{
+			var recordType = typeof( T );
+
+			if( context.ReaderConfiguration.Maps[recordType] == null )
+			{
+				context.ReaderConfiguration.Maps.Add( context.ReaderConfiguration.AutoMap( recordType ) );
+			}
+
+			var map = context.ReaderConfiguration.Maps[recordType];
+			var bindings = new List<MemberBinding>();
+			CreateMemberBindingsForMapping( map, recordType, bindings );
+			var body = Expression.Block( bindings.Cast<Expression>() );
+			var parameter = Expression.Parameter( recordType );
+			var lambda = Expression.Lambda<Action<T>>( body, parameter ).Compile();
+			lambda( record );
 		}
 
 		/// <summary>
