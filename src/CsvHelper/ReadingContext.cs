@@ -15,26 +15,28 @@ namespace CsvHelper
 	/// CSV reading state.
 	/// </summary>
 	public class ReadingContext : IReaderContext, IParserContext, IFieldReaderContext, IDisposable
-    {
+	{
 		private bool disposed;
 		private TextReader reader;
 		private Configuration.Configuration configuration;
 
-		internal virtual StringBuilder RawRecordBuilder { get; } = new StringBuilder();
+		public virtual IParserContext ParserContext => this;
 
-		internal virtual StringBuilder FieldBuilder { get; } = new StringBuilder();
+		public virtual StringBuilder RawRecordBuilder { get; } = new StringBuilder();
 
-		internal virtual RecordBuilder RecordBuilder { get; } = new RecordBuilder();
+		public virtual StringBuilder FieldBuilder { get; } = new StringBuilder();
 
-		internal Dictionary<string, List<int>> NamedIndexes { get; } = new Dictionary<string, List<int>>();
+		public virtual RecordBuilder RecordBuilder { get; } = new RecordBuilder();
 
-		internal Dictionary<string, Tuple<string, int>> NamedIndexCache { get; } = new Dictionary<string, Tuple<string, int>>();
+		public virtual Dictionary<string, List<int>> NamedIndexes { get; } = new Dictionary<string, List<int>>();
 
-		internal Dictionary<Type, Delegate> RecordFuncs = new Dictionary<Type, Delegate>();
+		public virtual Dictionary<string, Tuple<string, int>> NamedIndexCache { get; } = new Dictionary<string, Tuple<string, int>>();
 
-		internal Dictionary<Type, TypeConverterOptions> TypeConverterOptionsCache { get; } = new Dictionary<Type, TypeConverterOptions>();
+		public virtual Dictionary<Type, Delegate> RecordFuncs { get; } = new Dictionary<Type, Delegate>();
 
-		internal MemberMapData ReusableMemberMapData { get; } = new MemberMapData( null );
+		public virtual Dictionary<Type, TypeConverterOptions> TypeConverterOptionsCache { get; } = new Dictionary<Type, TypeConverterOptions>();
+
+		public virtual MemberMapData ReusableMemberMapData { get; } = new MemberMapData( null );
 
 		/// <summary>
 		/// Gets the <see cref="CsvParser"/> configuration.
@@ -55,12 +57,12 @@ namespace CsvHelper
 		/// Gets a value indicating if the <see cref="Reader"/>
 		/// should be left open when disposing.
 		/// </summary>
-		public virtual bool LeaveOpen { get; internal set; }
+		public virtual bool LeaveOpen { get; set; }
 
 		/// <summary>
 		/// Gets the buffer used to store data from the <see cref="Reader"/>.
 		/// </summary>
-		public virtual char[] Buffer { get; internal set; }
+		public virtual char[] Buffer { get; set; }
 
 		/// <summary>
 		/// Gets all the characters of the record including
@@ -76,42 +78,42 @@ namespace CsvHelper
 		/// <summary>
 		/// Gets the buffer position.
 		/// </summary>
-		public virtual int BufferPosition { get; internal set; }
+		public virtual int BufferPosition { get; set; }
 
 		/// <summary>
 		/// Gets the field start position.
 		/// </summary>
-		public virtual int FieldStartPosition { get; internal set; }
+		public virtual int FieldStartPosition { get; set; }
 
 		/// <summary>
 		/// Gets the field end position.
 		/// </summary>
-		public virtual int FieldEndPosition { get; internal set; }
+		public virtual int FieldEndPosition { get; set; }
 
 		/// <summary>
 		/// Gets the raw record start position.
 		/// </summary>
-		public virtual int RawRecordStartPosition { get; internal set; }
+		public virtual int RawRecordStartPosition { get; set; }
 
 		/// <summary>
 		/// Gets the raw record end position.
 		/// </summary>
-		public virtual int RawRecordEndPosition { get; internal set; }
+		public virtual int RawRecordEndPosition { get; set; }
 
 		/// <summary>
 		/// Gets the number of characters read from the <see cref="Reader"/>.
 		/// </summary>
-		public virtual int CharsRead { get; internal set; }
+		public virtual int CharsRead { get; set; }
 
 		/// <summary>
 		/// Gets the character position.
 		/// </summary>
-		public virtual long CharPosition { get; internal set; }
+		public virtual long CharPosition { get; set; }
 
 		/// <summary>
 		/// Gets the byte position.
 		/// </summary>
-		public virtual long BytePosition { get; internal set; }
+		public virtual long BytePosition { get; set; }
 
 		/// <summary>
 		/// Gets a value indicating if the field is bad.
@@ -119,50 +121,50 @@ namespace CsvHelper
 		/// A field is bad if a quote is found in a field
 		/// that isn't escaped.
 		/// </summary>
-		public virtual bool IsFieldBad { get; internal set; }
+		public virtual bool IsFieldBad { get; set; }
 
 		/// <summary>
 		/// Gets the record.
 		/// </summary>
-		public virtual string[] Record { get; internal set; }
+		public virtual string[] Record { get; set; }
 
 		/// <summary>
 		/// Gets the row of the CSV file that the parser is currently on.
 		/// </summary>
-		public virtual int Row { get; internal set; }
+		public virtual int Row { get; set; }
 
 		/// <summary>
 		/// Gets the row of the CSV file that the parser is currently on.
 		/// This is the actual file row.
 		/// </summary>
-		public virtual int RawRow { get; internal set; }
+		public virtual int RawRow { get; set; }
 
 		/// <summary>
 		/// Gets the character the field reader is currently on.
 		/// </summary>
-		public virtual int C { get; internal set; } = -1;
+		public virtual int C { get; set; } = -1;
 
 		/// <summary>
 		/// Gets a value indicating if reading has begun.
 		/// </summary>
-		public virtual bool HasBeenRead { get; internal set; }
+		public virtual bool HasBeenRead { get; set; }
 
 		/// <summary>
 		/// Gets the header record.
 		/// </summary>
-		public virtual string[] HeaderRecord { get; internal set; }
+		public virtual string[] HeaderRecord { get; set; }
 
 		/// <summary>
 		/// Gets the current index.
 		/// </summary>
-		public virtual int CurrentIndex { get; internal set; } = -1;
+		public virtual int CurrentIndex { get; set; } = -1;
 
 		/// <summary>
 		/// Gets the column count.
 		/// </summary>
-		public virtual int ColumnCount { get; internal set; }
+		public virtual int ColumnCount { get; set; }
 
-		internal ReadingContext( TextReader reader, Configuration.Configuration configuration, bool leaveOpen )
+		public ReadingContext( TextReader reader, Configuration.Configuration configuration, bool leaveOpen )
 		{
 			this.reader = reader ?? throw new ArgumentNullException( nameof( reader ) );
 			this.configuration = configuration ?? throw new ArgumentNullException( nameof( configuration ) );
@@ -174,7 +176,7 @@ namespace CsvHelper
 		/// Clears the specified caches.
 		/// </summary>
 		/// <param name="cache">The caches to clear.</param>
-		public void ClearCache( Caches cache )
+		public virtual void ClearCache( Caches cache )
 		{
 			if( ( cache & Caches.NamedIndex ) == Caches.NamedIndex )
 			{

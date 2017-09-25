@@ -22,7 +22,7 @@ namespace CsvHelper
 	/// </summary>
 	public class CsvReader : IReader
 	{
-		private ReadingContext context;
+		private IReaderContext context;
 		private bool disposed;
 		private IParser parser;
 
@@ -77,7 +77,7 @@ namespace CsvHelper
 		public CsvReader( IParser parser )
 		{
 			this.parser = parser ?? throw new ArgumentNullException( nameof( parser ) );
-			context = parser.Context as ReadingContext ?? throw new InvalidOperationException( "For ICsvParser to be used in CsvReader, ICSvParser.Context must also implement IReaderContext." );
+			context = parser.Context as IReaderContext ?? throw new InvalidOperationException( "For ICsvParser to be used in CsvReader, ICSvParser.Context must also implement IReaderContext." );
 		}
 
 		/// <summary>

@@ -16,7 +16,7 @@ namespace CsvHelper
 		/// <summary>
 		/// Gets the context used when reading.
 		/// </summary>
-		public ReadingContext ReadingContext { get; private set; }
+		public IReaderContext ReadingContext { get; private set; }
 
 		/// <summary>
 		/// Gets the context used when writing.
@@ -44,7 +44,7 @@ namespace CsvHelper
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CsvHelperException"/> class.
 		/// </summary>
-		public CsvHelperException( ReadingContext context )
+		public CsvHelperException( IReaderContext context )
 		{
 			ReadingContext = context;
 		}
@@ -63,7 +63,7 @@ namespace CsvHelper
 		/// </summary>
 		/// <param name="context">The reading context.</param>
 		/// <param name="message">The message that describes the error.</param>
-		public CsvHelperException( ReadingContext context, string message ) : base( message )
+		public CsvHelperException( IReaderContext context, string message ) : base( message )
 		{
 			ReadingContext = context;
 		}
@@ -76,7 +76,7 @@ namespace CsvHelper
 		/// <param name="context">The reading context.</param>
 		/// <param name="message">The error message that explains the reason for the exception.</param>
 		/// <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
-		public CsvHelperException( ReadingContext context, string message, Exception innerException ) : base( message, innerException )
+		public CsvHelperException( IReaderContext context, string message, Exception innerException ) : base( message, innerException )
 		{
 			ReadingContext = context;
 		}

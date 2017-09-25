@@ -12,6 +12,11 @@ namespace CsvHelper
 	public interface IParserContext
     {
 		/// <summary>
+		/// Gets the field.
+		/// </summary>
+		string Field { get; }
+
+		/// <summary>
 		/// Gets the character the field reader is currently on.
 		/// </summary>
 		int C { get; }
