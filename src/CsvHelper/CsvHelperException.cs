@@ -21,7 +21,7 @@ namespace CsvHelper
 		/// <summary>
 		/// Gets the context used when writing.
 		/// </summary>
-		public WritingContext WritingContext { get; private set; }
+		public IWriterContext WritingContext { get; private set; }
 
 		/// <summary>
 		/// Initializes a new instance of the CsvHelperException class.
@@ -52,7 +52,7 @@ namespace CsvHelper
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CsvHelperException"/> class.
 		/// </summary>
-		public CsvHelperException( WritingContext context )
+		public CsvHelperException( IWriterContext context )
 		{
 			WritingContext = context;
 		}
@@ -87,7 +87,7 @@ namespace CsvHelper
 		/// </summary>
 		/// <param name="context">The writing context.</param>
 		/// <param name="message">The message that describes the error.</param>
-		public CsvHelperException( WritingContext context, string message ) : base( message )
+		public CsvHelperException( IWriterContext context, string message ) : base( message )
 		{
 			WritingContext = context;
 		}
@@ -100,7 +100,7 @@ namespace CsvHelper
 		/// <param name="context">The writing context.</param>
 		/// <param name="message">The error message that explains the reason for the exception.</param>
 		/// <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
-		public CsvHelperException( WritingContext context, string message, Exception innerException ) : base( message, innerException )
+		public CsvHelperException( IWriterContext context, string message, Exception innerException ) : base( message, innerException )
 		{
 			WritingContext = context;
 		}

@@ -15,6 +15,6 @@ namespace CsvHelper
 		/// Gets a value indicating if the <see cref="TextReader"/>
 		/// should be left open when disposing.
 		/// </summary>
-		bool LeaveOpen { get; }
+		bool LeaveOpen { get; set; }
 	}
 }
